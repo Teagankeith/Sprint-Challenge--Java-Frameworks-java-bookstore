@@ -1,5 +1,6 @@
 package com.lambdaschool.bookstore.config;
 
+import io.swagger.models.HttpMethod;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
@@ -44,24 +45,45 @@ public class ResourceServerConfig
         // hasAnyRole = must be authenticated and be assigned this role!
         http.authorizeRequests()
                 .antMatchers("/",
-                             "/h2-console/**",
-                             "/swagger-resources/**",
-                             "/swagger-resource/**",
-                             "/swagger-ui.html",
-                             "/v2/api-docs",
-                             "/webjars/**",
-                             "/createnewuser")
+                        "/h2-console/**",
+                        "/swagger-resources/**",
+                        "/swagger-resource/**",
+                        "/swagger-ui.html",
+                        "/v2/api-docs",
+                        "/webjars/**",
+                        "/createnewuser")
+                .permitAll()
+                .antMatchers(String.valueOf(HttpMethod.POST),
+                        "/users/**")
+                .hasAnyRole("ADMIN")
+                .antMatchers(String.valueOf(HttpMethod.GET),
+                        "/books/books")
+                .hasAnyRole("ADMIN", "DATA")
+                .antMatchers(String.valueOf(HttpMethod.GET),
+                        "/books/book/{bookId}")
+                .hasAnyRole("ADMIN", "DATA")
+                .antMatchers(String.valueOf(HttpMethod.POST),
+                        "/books/book")
+                .hasAnyRole("ADMIN")
+                .antMatchers(String.valueOf(HttpMethod.PUT),
+                        "books/book/{bookId}")
+                .hasAnyRole("ADMIN")
+                .antMatchers(String.valueOf(HttpMethod.DELETE),
+                        "/books/book/{bookId}")
                 .permitAll()
                 .antMatchers("/users/**",
-                             "/useremails/**",
-                             "/oauth/revoke-token",
-                             "/logout")
+                        "/useremails/**",
+                        "/oauth/revoke-token",
+                        "/logout")
                 .authenticated()
                 .antMatchers("/roles/**")
-                .hasAnyRole("ADMIN", "DATA")
+                .hasAnyRole("ADMIN")
                 .and()
                 .exceptionHandling()
                 .accessDeniedHandler(new OAuth2AccessDeniedHandler());
+
+
+
 
         // http.requiresChannel().anyRequest().requiresSecure(); required for https
 
